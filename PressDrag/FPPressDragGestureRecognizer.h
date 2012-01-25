@@ -11,9 +11,11 @@
 
 @interface FPPressDragGestureRecognizer : UIGestureRecognizer
 
-@property (nonatomic) BOOL didLongPress;
 @property (nonatomic) CGPoint anchorPoint;
 @property (nonatomic) CGPoint dragPoint;
+
+@property (nonatomic) CGFloat allowableMovement;
+@property (nonatomic) CFTimeInterval minimumPressDuration;
 
 - (void)reset;
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;

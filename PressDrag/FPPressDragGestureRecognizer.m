@@ -11,6 +11,7 @@
 @interface FPPressDragGestureRecognizer ()
 
 @property (nonatomic, retain) NSTimer *pressTimer;
+@property (nonatomic) BOOL didLongPress;
 
 @end
 
@@ -18,18 +19,46 @@
 
 @synthesize pressTimer = _pressTimer;
 @synthesize didLongPress = _didLongPress;
+
 @synthesize anchorPoint = _anchorPoint;
 @synthesize dragPoint = _dragPoint;
 
+@synthesize allowableMovement = _allowableMovement;
+@synthesize minimumPressDuration = _minimumPressDuration;
+
+#pragma mark -
+#pragma mark Initialization
+
+
+- (id)init {
+    if (self = [super init]) {
+        self.allowableMovement = 10;
+        self.minimumPressDuration = 0.5;
+    }
+    return self;
+}
+
+- (id)initWithTarget:(id)target action:(SEL)action {
+    if (self = [super initWithTarget:target action:action]) {
+        self.allowableMovement = 10;
+        self.minimumPressDuration = 0.5;
+    }
+    return self;
+}
+
+#pragma mark -
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"FPPressDragGestureRecognizer didLongPress=%i anchorPoint=(%d, %d) dragPoint(%d, %d)", self.didLongPress, self.anchorPoint.x, self.anchorPoint.y, self.dragPoint.x, self.dragPoint.y];
 }
 
+#pragma mark -
+#pragma mark Utility methods
+
 - (BOOL)stayedCloseEnough:(CGPoint)touchLocation to:(CGPoint)previousTouchLocation {
     CGFloat dx = touchLocation.x - previousTouchLocation.x;
     CGFloat dy = touchLocation.y - previousTouchLocation.y;
-    BOOL didIt = sqrt(dx*dx + dy*dy) < 10.0;
+    BOOL didIt = sqrt(dx*dx + dy*dy) <= self.allowableMovement;
     return didIt;
 }
 
@@ -41,6 +70,9 @@
         self.pressTimer = nil;
     }
 }
+
+#pragma mark -
+#pragma mark UIGestureRecognizer implementation
 
 - (void)reset {
     [super reset];
@@ -58,7 +90,7 @@
         self.state = UIGestureRecognizerStateFailed;
         return;
     }
-    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:self.minimumPressDuration
                                                       target:self selector:@selector(longPressed:)
                                                     userInfo:nil repeats:NO];
     self.pressTimer = timer;
