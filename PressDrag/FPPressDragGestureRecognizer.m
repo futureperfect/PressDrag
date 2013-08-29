@@ -8,48 +8,66 @@
 
 #import "FPPressDragGestureRecognizer.h"
 
+#define kDefaultAllowableMovement   (10.0f)
+#define kDefaultPressDuration       (0.233f)
+
+#pragma mark -
+#pragma mark (Extension)
+
 @interface FPPressDragGestureRecognizer ()
 
-@property (nonatomic, retain) NSTimer *pressTimer;
-@property (nonatomic) BOOL didLongPress;
+@property (nonatomic, assign) CGPoint   anchorPoint;    // rewrite property
+@property (nonatomic, assign) CGPoint   dragPoint;      // rewrite property
+
+@property (nonatomic, retain) NSTimer   *pressTimer;
+@property (nonatomic, assign) BOOL      didLongPress;
 
 @end
 
+#pragma mark -
+#pragma mark (Private)
+
+@interface FPPressDragGestureRecognizer (Private)
+
+- (void)_init;
+
+@end
+
+@implementation FPPressDragGestureRecognizer (Private)
+
+- (void)_init {
+    self.allowableMovement = kDefaultAllowableMovement;
+    self.minimumPressDuration = kDefaultPressDuration;
+}
+
+@end
+
+#pragma mark -
+
 @implementation FPPressDragGestureRecognizer
-
-@synthesize pressTimer = _pressTimer;
-@synthesize didLongPress = _didLongPress;
-
-@synthesize anchorPoint = _anchorPoint;
-@synthesize dragPoint = _dragPoint;
-
-@synthesize allowableMovement = _allowableMovement;
-@synthesize minimumPressDuration = _minimumPressDuration;
 
 #pragma mark -
 #pragma mark Initialization
 
-
 - (id)init {
     if (self = [super init]) {
-        self.allowableMovement = 10;
-        self.minimumPressDuration = 0.5;
+        [self _init];
     }
     return self;
 }
 
 - (id)initWithTarget:(id)target action:(SEL)action {
     if (self = [super initWithTarget:target action:action]) {
-        self.allowableMovement = 10;
-        self.minimumPressDuration = 0.5;
+        [self _init];
     }
     return self;
 }
 
 #pragma mark -
+#pragma mark NSObject Override
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"FPPressDragGestureRecognizer didLongPress=%i anchorPoint=(%d, %d) dragPoint(%d, %d)", self.didLongPress, self.anchorPoint.x, self.anchorPoint.y, self.dragPoint.x, self.dragPoint.y];
+    return [NSString stringWithFormat:@"FPPressDragGestureRecognizer didLongPress=%i anchorPoint=(%f, %f) dragPoint(%f, %f)", self.didLongPress, self.anchorPoint.x, self.anchorPoint.y, self.dragPoint.x, self.dragPoint.y];
 }
 
 #pragma mark -
@@ -58,7 +76,7 @@
 - (BOOL)stayedCloseEnough:(CGPoint)touchLocation to:(CGPoint)previousTouchLocation {
     CGFloat dx = touchLocation.x - previousTouchLocation.x;
     CGFloat dy = touchLocation.y - previousTouchLocation.y;
-    BOOL didIt = sqrt(dx*dx + dy*dy) <= self.allowableMovement;
+    BOOL didIt = sqrt(dx * dx + dy * dy) <= self.allowableMovement;
     return didIt;
 }
 
@@ -66,18 +84,21 @@
     if (theTimer == self.pressTimer) {
         self.state = UIGestureRecognizerStateBegan;
         self.didLongPress = YES;
+        
         [theTimer invalidate];
         self.pressTimer = nil;
     }
 }
 
 #pragma mark -
-#pragma mark UIGestureRecognizer implementation
+#pragma mark UIGestureRecognizer Override
 
 - (void)reset {
     [super reset];
+    
     self.anchorPoint = CGPointZero;
     self.didLongPress = NO;
+    
     if (self.pressTimer) {
         [self.pressTimer invalidate];
     }

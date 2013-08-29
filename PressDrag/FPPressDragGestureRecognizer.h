@@ -11,16 +11,10 @@
 
 @interface FPPressDragGestureRecognizer : UIGestureRecognizer
 
-@property (nonatomic) CGPoint anchorPoint;
-@property (nonatomic) CGPoint dragPoint;
+@property (nonatomic, readonly) CGPoint           anchorPoint;
+@property (nonatomic, readonly) CGPoint           dragPoint;
 
-@property (nonatomic) CGFloat allowableMovement;
-@property (nonatomic) CFTimeInterval minimumPressDuration;
-
-- (void)reset;
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
+@property (nonatomic, assign)   CGFloat           allowableMovement;      // Default as 10 pt
+@property (nonatomic, assign)   CFTimeInterval    minimumPressDuration;   // Default as 0.233 seconds
 
 @end
