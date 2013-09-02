@@ -140,11 +140,17 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     [super touchesEnded:touches withEvent:event];
+    
     if (self.pressTimer) {
         [self.pressTimer invalidate];
     }
     self.pressTimer = nil;
-    self.state = UIGestureRecognizerStateEnded;
+    
+    if (UIGestureRecognizerStatePossible == self.state) {
+        self.state = UIGestureRecognizerStateFailed;
+    } else {
+        self.state = UIGestureRecognizerStateEnded;
+    }
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
